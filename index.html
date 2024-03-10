@@ -48,6 +48,11 @@ select {
   border-radius: 5px;
 }
 
+input[type="range"] {
+  width: calc(100% - 30px);
+  margin-right: 15px;
+}
+
 button {
   width: 100%;
   padding: 10px;
@@ -102,6 +107,11 @@ button:hover {
       </select>
     </div>
     <div>
+      <label for="carb-percentage">Percentage of Calories from Carbohydrates: (Sweet spot is 30-40%)</label>
+      <input type="range" id="carb-percentage" name="carb-percentage" min="15" max="60" value="50" step="5">
+      <output for="carb-percentage" id="carb-percentage-output">50%</output>
+    </div>
+    <div>
       <button type="submit">Calculate</button>
     </div>
   </form>
@@ -120,6 +130,7 @@ document.getElementById("macros-form").addEventListener("submit", function(event
   var weightLbs = weightKg * 2.20462; // Convert kg to lbs
   var activity = form.elements["activity"].value;
   var goal = form.elements["goal"].value;
+  var carbPercentage = parseInt(form.elements["carb-percentage"].value);
 
   var activityMultiplier = {
     "Sedentary (0h/week)": 8,
@@ -159,7 +170,7 @@ document.getElementById("macros-form").addEventListener("submit", function(event
   var proteinRequirement = weightLbs * goalMultiplier[goal]["ProteinPerLb"];
 
   // Calculate remaining calories for carbohydrates
-  var remainingCaloriesForCarbs = totalCalories * 0.5; // 50% of total calories for carbohydrates
+  var remainingCaloriesForCarbs = totalCalories * (carbPercentage / 100); // Percentage of total calories for carbohydrates
   var carbohydratesInGrams = remainingCaloriesForCarbs / 4; // 4 calories per gram of carbohydrates
 
   // Calculate remaining calories for fats
@@ -170,6 +181,11 @@ document.getElementById("macros-form").addEventListener("submit", function(event
   document.getElementById("protein-result").innerHTML = "<strong>Protein requirement:</strong> " + proteinRequirement.toFixed(2) + " grams";
   document.getElementById("carbohydrates-result").innerHTML = "<strong>Carbohydrates:</strong> " + carbohydratesInGrams.toFixed(2) + " grams";
   document.getElementById("fats-result").innerHTML = "<strong>Fats:</strong> " + fatsInGrams.toFixed(2) + " grams";
+});
+
+document.getElementById("carb-percentage").addEventListener("input", function() {
+  var output = document.getElementById("carb-percentage-output");
+  output.innerHTML = this.value + "%";
 });
 </script>
 
