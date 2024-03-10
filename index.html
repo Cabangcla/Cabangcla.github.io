@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Macros Calculator</title>
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f4f4f4;
+  margin: 0;
+  padding: 0;
+}
+
+.container {
+  max-width: 600px;
+  margin: 20px auto;
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+h2 {
+  text-align: center;
+  color: #333;
+}
+
+form {
+  margin-bottom: 20px;
+}
+
+form div {
+  margin-bottom: 10px;
+}
+
+label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+input[type="number"],
+select {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+button {
+  width: 100%;
+  padding: 10px;
+  background-color: #4caf50;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #45a049;
+}
+
+.result {
+  margin-top: 20px;
+  padding: 10px;
+  border-radius: 5px;
+  background-color: #f9f9f9;
+}
+
+.result div {
+  margin-bottom: 10px;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h2>Macros Calculator</h2>
+
+  <form id="macros-form">
+    <div>
+      <label for="weight">Weight (kg):</label>
+      <input type="number" id="weight" name="weight" required>
+    </div>
+    <div>
+      <label for="activity">Activity Level:</label>
+      <select id="activity" name="activity" required>
+        <option value="Sedentary (0h/week)">Sedentary (0h/week)</option>
+        <option value="Lightly Active (1-4h/week)">Lightly Active (1-4h/week)</option>
+        <option value="Moderately Active (5-8h/week)">Moderately Active (5-8h/week)</option>
+        <option value="Highly Active (9h+/week)">Highly Active (9h+/week)</option>
+      </select>
+    </div>
+    <div>
+      <label for="goal">Goal:</label>
+      <select id="goal" name="goal" required>
+        <option value="Cutting (15% body fat)">Cutting (15% body fat)</option>
+        <option value="Lean Gaining (10-15% body fat)">Lean Gaining (10-15% body fat)</option>
+        <option value="Maintaining">Maintaining</option>
+      </select>
+    </div>
+    <div>
+      <button type="submit">Calculate</button>
+    </div>
+  </form>
+
+  <div class="result" id="result"></div>
+  <div class="result" id="protein-result"></div>
+  <div class="result" id="carbohydrates-result"></div>
+  <div class="result" id="fats-result"></div>
+</div>
+
+<script>
+document.getElementById("macros-form").addEventListener("submit", function(event) {
+  event.preventDefault();
+  var form = event.target;
+  var weightKg = parseFloat(form.elements["weight"].value);
+  var weightLbs = weightKg * 2.20462; // Convert kg to lbs
+  var activity = form.elements["activity"].value;
+  var goal = form.elements["goal"].value;
+
+  var activityMultiplier = {
+    "Sedentary (0h/week)": 8,
+    "Lightly Active (1-4h/week)": 10,
+    "Moderately Active (5-8h/week)": 12,
+    "Highly Active (9h+/week)": 14
+  };
+
+  var goalMultiplier = {
+    "Cutting (15% body fat)": {
+      "Sedentary (0h/week)": 8,
+      "Lightly Active (1-4h/week)": 10,
+      "Moderately Active (5-8h/week)": 12,
+      "Highly Active (9h+/week)": 14,
+      "ProteinPerLb": 1
+    },
+    "Lean Gaining (10-15% body fat)": {
+      "Lightly Active (1-4h/week)": 16,
+      "Moderately Active (5-8h/week)": 18,
+      "Highly Active (9h+/week)": 20,
+      "ProteinPerLb": 0.8
+    },
+    "Maintaining": {
+      "Sedentary (0h/week)": 12,
+      "Lightly Active (1-4h/week)": 14,
+      "Moderately Active (5-8h/week)": 16,
+      "Highly Active (9h+/week)": 18,
+      "ProteinPerLb": 0.8
+    }
+  };
+
+  var activityMultiplierValue = activityMultiplier[activity];
+  var goalMultiplierValue = goalMultiplier[goal][activity];
+
+  var totalCalories = weightKg * 2.20462 * goalMultiplierValue;
+
+  var proteinRequirement = weightLbs * goalMultiplier[goal]["ProteinPerLb"];
+
+  // Calculate remaining calories for carbohydrates
+  var remainingCaloriesForCarbs = totalCalories * 0.5; // 50% of total calories for carbohydrates
+  var carbohydratesInGrams = remainingCaloriesForCarbs / 4; // 4 calories per gram of carbohydrates
+
+  // Calculate remaining calories for fats
+  var remainingCaloriesForFats = totalCalories - (proteinRequirement * 4) - remainingCaloriesForCarbs;
+  var fatsInGrams = remainingCaloriesForFats / 9; // 9 calories per gram of fat
+
+  document.getElementById("result").innerHTML = "<strong>Total calories:</strong> " + totalCalories.toFixed(2) + " kcal";
+  document.getElementById("protein-result").innerHTML = "<strong>Protein requirement:</strong> " + proteinRequirement.toFixed(2) + " grams";
+  document.getElementById("carbohydrates-result").innerHTML = "<strong>Carbohydrates:</strong> " + carbohydratesInGrams.toFixed(2) + " grams";
+  document.getElementById("fats-result").innerHTML = "<strong>Fats:</strong> " + fatsInGrams.toFixed(2) + " grams";
+});
+</script>
+
+</body>
+</html>
